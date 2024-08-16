@@ -14,13 +14,17 @@ func main() {
 
 	app := fiber.New()
 
-	database.Connect()
-	defer database.DB.Close(context.Background())
-
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatalf("Error loading .env file")
 	}
+
+	database.Connect()
+	defer func() {
+		if err := database.DB.Disconnect(context.Background()); err != nil {
+			log.Fatalf("Error disconnecting from MongoDB: %v", err)
+		}
+	}()
 
 	PORT := os.Getenv("PORT")
 

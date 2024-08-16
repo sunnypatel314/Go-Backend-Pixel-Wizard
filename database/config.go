@@ -2,37 +2,30 @@ package database
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 
-	"github.com/jackc/pgx/v4"
-	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// DB is a global variable to hold the database connection
-var DB *pgx.Conn
+var DB *mongo.Client
 
-// Connect initializes the database connection
 func Connect() {
-	// Load environment variables
-	if err := godotenv.Load(); err != nil {
-		log.Fatalf("Error loading .env file")
-	}
-
-	host := os.Getenv("DATABASE_HOST")
-	port := os.Getenv("DATABASE_PORT")
-	user := os.Getenv("DATABASE_USER")
-	password := os.Getenv("DATABASE_PASSWORD")
-	dbname := os.Getenv("DATABASE_NAME")
-
-	// Construct connection URL
-	connectionString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
-		user, password, host, port, dbname)
+	uri := os.Getenv("MONGODB_URI")
+	clientOptions := options.Client().ApplyURI(uri)
 
 	var err error
-	DB, err = pgx.Connect(context.Background(), connectionString)
+	DB, err = mongo.Connect(context.Background(), clientOptions)
 	if err != nil {
-		log.Fatalf("Unable to connect to database: %v", err)
+		log.Fatalf("Failed to connect to MongoDB: %v", err)
 	}
+
+	err = DB.Ping(context.Background(), nil)
+	if err != nil {
+		log.Fatalf("Failed to ping MongoDB: %v", err)
+	}
+
+	log.Println("Connected to MongoDB!")
+
 }
