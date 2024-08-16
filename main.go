@@ -1,17 +1,21 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
-	// "github.com/sunnypatel314/Go-Backend-Pixel-Wizard/database"
+	"github.com/sunnypatel314/Go-Backend-Pixel-Wizard/database"
 )
 
 func main() {
 
 	app := fiber.New()
+
+	database.Connect()
+	defer database.DB.Close(context.Background())
 
 	err := godotenv.Load()
 	if err != nil {

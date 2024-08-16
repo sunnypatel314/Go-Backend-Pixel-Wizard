@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 
@@ -19,8 +20,16 @@ func Connect() {
 		log.Fatalf("Error loading .env file")
 	}
 
-	// Connect to PostgreSQL
-	connectionString := os.Getenv("DATABASE_URL")
+	host := os.Getenv("DATABASE_HOST")
+	port := os.Getenv("DATABASE_PORT")
+	user := os.Getenv("DATABASE_USER")
+	password := os.Getenv("DATABASE_PASSWORD")
+	dbname := os.Getenv("DATABASE_NAME")
+
+	// Construct connection URL
+	connectionString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		user, password, host, port, dbname)
+
 	var err error
 	DB, err = pgx.Connect(context.Background(), connectionString)
 	if err != nil {
