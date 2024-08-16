@@ -20,9 +20,9 @@ func Connect() {
 	}
 
 	// Connect to PostgreSQL
-	connStr := os.Getenv("DATABASE_URL")
+	connectionString := os.Getenv("DATABASE_URL")
 	var err error
-	DB, err = pgx.Connect(context.Background(), connStr)
+	DB, err = pgx.Connect(context.Background(), connectionString)
 	if err != nil {
 		log.Fatalf("Unable to connect to database: %v", err)
 	}

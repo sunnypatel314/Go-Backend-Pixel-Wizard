@@ -1,4 +1,4 @@
-module pixel-wizard-backend
+module github.com/sunnypatel314/Go-Backend-Pixel-Wizard
 
 go 1.22.5
 
