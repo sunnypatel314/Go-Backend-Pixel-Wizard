@@ -14,7 +14,6 @@ import (
 )
 
 func main() {
-
 	app := fiber.New()
 
 	err := godotenv.Load()
@@ -36,19 +35,16 @@ func main() {
 	app.Post("/api/v1/auth/log-in", handlers.LogInHandler)
 	app.Post("/api/v1/auth/sign-up", handlers.SignUpHandler)
 
-	// POST ROUTES
+	// POST & DALLE ROUTES
 	auth := app.Group("/api/v1", middleware.AuthMiddleware) // Auth middleware
 	auth.Post("/posts", handlers.CreatePostHandler)
 	auth.Get("/posts", handlers.GetAllPostsHandler)
 	auth.Delete("/posts/:id", handlers.DeletePostHandler)
-
-	// DALLE ROUTES
-
-	PORT := os.Getenv("PORT")
+	auth.Post("/dalle", handlers.GenerateImageHandler)
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.Status(200).JSON(fiber.Map{"msg": "Hello, World!"})
 	})
 
-	app.Listen(":" + PORT)
+	app.Listen(":" + os.Getenv("PORT"))
 }
