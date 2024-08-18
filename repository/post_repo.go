@@ -2,10 +2,12 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/sunnypatel314/Go-Backend-Pixel-Wizard/models"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -48,6 +50,13 @@ func (r *PostRepository) CreatePost(ctx context.Context, post *models.Post) (*mo
 }
 
 func (r *PostRepository) DeletePost(ctx context.Context, postID string) error {
-	_, err := r.collection.DeleteOne(ctx, bson.M{"_id": postID})
+	objectID, err := primitive.ObjectIDFromHex(postID)
+	if err != nil {
+		return err
+	}
+	result, err := r.collection.DeleteOne(ctx, bson.M{"_id": objectID})
+	if result.DeletedCount == 0 {
+		return fmt.Errorf("no document found with the given ID")
+	}
 	return err
 }

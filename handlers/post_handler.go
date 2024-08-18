@@ -20,30 +20,30 @@ func GetAllPostsHandler(c *fiber.Ctx) error {
 	posts, err := postRepo.GetAllPosts(context.Background())
 	if err != nil {
 		log.Printf("Error fetching posts: %v", err)
-		return c.Status(500).JSON(fiber.Map{"error": "Internal server error"})
+		return c.Status(500).JSON(fiber.Map{"error": "Unable to fetch posts", "success": false})
 	}
 
 	// Return the posts in the response
-	return c.Status(200).JSON(posts)
+	return c.Status(200).JSON(fiber.Map{"data": posts, "success": true})
 }
 
 func CreatePostHandler(c *fiber.Ctx) error {
 	type CreatePostRequest struct {
-		Username string `json:"username"` // Assuming you need username for verification
+		Username string `json:"username"`
 		Prompt   string `json:"prompt"`
 		Photo    string `json:"photo"`
 	}
 
 	var req CreatePostRequest
 	if err := c.BodyParser(&req); err != nil {
-		return c.Status(400).JSON(fiber.Map{"error": "Invalid input"})
+		return c.Status(400).JSON(fiber.Map{"error": "Invalid input", "success": false})
 	}
 
 	// Upload photo to Cloudinary
 	photoURL, err := cloudinary.UploadImage(req.Photo)
 	if err != nil {
 		log.Printf("Error uploading photo: %v", err)
-		return c.Status(500).JSON(fiber.Map{"error": "Internal server error"})
+		return c.Status(500).JSON(fiber.Map{"error": "Internal server error", "success": false})
 	}
 
 	// Initialize the post repository
@@ -55,7 +55,7 @@ func CreatePostHandler(c *fiber.Ctx) error {
 	// Find the user by username (assuming the username is unique)
 	user, err := userRepo.FindUserByEmailOrUsername(context.Background(), req.Username)
 	if err != nil {
-		return c.Status(404).JSON(fiber.Map{"error": "User not found"})
+		return c.Status(404).JSON(fiber.Map{"error": "User not found", "success": false})
 	}
 
 	// Create a new post
@@ -70,17 +70,17 @@ func CreatePostHandler(c *fiber.Ctx) error {
 	_, err = postRepo.CreatePost(context.Background(), newPost)
 	if err != nil {
 		log.Printf("Error creating post: %v", err)
-		return c.Status(500).JSON(fiber.Map{"error": "Internal server error"})
+		return c.Status(500).JSON(fiber.Map{"error": "Internal server error", "success": false})
 	}
 
 	// Return success response
-	return c.Status(201).JSON(fiber.Map{"message": "Post created successfully"})
+	return c.Status(201).JSON(fiber.Map{"message": "Post created successfully", "success": true})
 }
 
 func DeletePostHandler(c *fiber.Ctx) error {
 	postID := c.Params("id")
 	if postID == "" {
-		return c.Status(400).JSON(fiber.Map{"error": "Post ID is required"})
+		return c.Status(400).JSON(fiber.Map{"error": "Post ID is required", "success": false})
 	}
 
 	// Initialize the post repository
@@ -88,8 +88,7 @@ func DeletePostHandler(c *fiber.Ctx) error {
 
 	err := postRepo.DeletePost(context.Background(), postID)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": "Internal server error"})
+		return c.Status(500).JSON(fiber.Map{"error": "Internal server error", "success": false})
 	}
-
-	return c.Status(200).JSON(fiber.Map{"message": "Post deleted successfully"})
+	return c.Status(204).Send(nil)
 }

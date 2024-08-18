@@ -38,6 +38,5 @@ func AuthMiddleware(c *fiber.Ctx) error {
 		c.Locals("user", claims)
 		return c.Next()
 	}
-
 	return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Invalid token"})
 }

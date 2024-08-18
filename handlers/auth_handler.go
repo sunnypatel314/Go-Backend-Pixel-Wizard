@@ -24,7 +24,7 @@ func LogInHandler(c *fiber.Ctx) error {
 
 	var req LogInRequest
 	if err := c.BodyParser(&req); err != nil {
-		return c.Status(400).JSON(fiber.Map{"error": "Invalid input"})
+		return c.Status(400).JSON(fiber.Map{"error": "Invalid input", "success": false})
 	}
 
 	// Initialize the user repository
@@ -34,21 +34,22 @@ func LogInHandler(c *fiber.Ctx) error {
 	user, err := userRepo.FindUserByEmailOrUsername(context.Background(), req.Identifier)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return c.Status(401).JSON(fiber.Map{"error": "Invalid identifier or password"})
+			return c.Status(401).JSON(fiber.Map{"error": "Invalid credentials", "success": false})
 		}
 		log.Printf("Error finding user: %v", err)
-		return c.Status(500).JSON(fiber.Map{"error": "Internal server error"})
+		return c.Status(500).JSON(fiber.Map{"error": "Internal server error", "success": false})
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
-		return c.Status(401).JSON(fiber.Map{"error": "Invalid identifier or password"})
+		return c.Status(401).JSON(fiber.Map{"error": "Invalid credentials", "success": false})
 	}
 
 	secretKey := os.Getenv("JWT_SECRET") // Store your secret key in an environment variable
 
 	claims := jwt.MapClaims{
-		"user_id": user.ID.Hex(),                         // Store the user's ID in the token
-		"exp":     time.Now().Add(time.Hour * 72).Unix(), // Token expiration time (e.g., 72 hours)
+		"username": user.Username,
+		"user_id":  user.ID.Hex(),                         // Store the user's ID in the token
+		"exp":      time.Now().Add(time.Hour * 72).Unix(), // Token expiration time (e.g., 72 hours)
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -56,11 +57,11 @@ func LogInHandler(c *fiber.Ctx) error {
 	tokenString, err := token.SignedString([]byte(secretKey))
 	if err != nil {
 		log.Printf("Error generating token: %v", err)
-		return c.Status(500).JSON(fiber.Map{"error": "Internal server error"})
+		return c.Status(500).JSON(fiber.Map{"error": "Internal server error", "success": false})
 	}
 
 	// Return the token to the user
-	return c.Status(200).JSON(fiber.Map{"token": tokenString})
+	return c.Status(200).JSON(fiber.Map{"token": tokenString, "success": true})
 }
 
 func SignUpHandler(c *fiber.Ctx) error {
@@ -72,7 +73,7 @@ func SignUpHandler(c *fiber.Ctx) error {
 
 	var req SignUpRequest
 	if err := c.BodyParser(&req); err != nil {
-		return c.Status(400).JSON(fiber.Map{"error": "Invalid input"})
+		return c.Status(400).JSON(fiber.Map{"error": "Invalid input", "success": false})
 	}
 
 	// Initialize the user repository
@@ -80,18 +81,18 @@ func SignUpHandler(c *fiber.Ctx) error {
 
 	_, err := userRepo.FindUserByEmailOrUsername(context.Background(), req.Email)
 	if err == nil {
-		return c.Status(400).JSON(fiber.Map{"error": "Email is already taken"})
+		return c.Status(400).JSON(fiber.Map{"error": "Email is already taken", "success": false})
 	}
 
 	_, err = userRepo.FindUserByEmailOrUsername(context.Background(), req.Username)
 	if err == nil {
-		return c.Status(400).JSON(fiber.Map{"error": "Username is already taken"})
+		return c.Status(400).JSON(fiber.Map{"error": "Username already exists", "success": false})
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
 		log.Printf("Error hashing password: %v", err)
-		return c.Status(500).JSON(fiber.Map{"error": "Internal server error"})
+		return c.Status(500).JSON(fiber.Map{"error": "Error encrypting and storing password", "success": false})
 	}
 
 	newUser := &models.User{
@@ -103,9 +104,9 @@ func SignUpHandler(c *fiber.Ctx) error {
 	_, err = userRepo.CreateUser(context.Background(), newUser)
 	if err != nil {
 		log.Printf("Error creating user: %v", err)
-		return c.Status(500).JSON(fiber.Map{"error": "Internal server error"})
+		return c.Status(500).JSON(fiber.Map{"error": "Error creating user", "success": false})
 	}
 
 	// Return success response
-	return c.Status(201).JSON(fiber.Map{"message": "User created successfully"})
+	return c.Status(201).JSON(fiber.Map{"success": true, "message": "User created"})
 }

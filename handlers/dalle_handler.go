@@ -26,7 +26,7 @@ func GenerateImageHandler(c *fiber.Ctx) error {
 	}
 
 	if err := c.BodyParser(&req); err != nil {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "Invalid input"})
+		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"error": "Invalid input", "success": false})
 	}
 
 	// Initialize OpenAI client (assuming your API key is in an environment variable)
@@ -45,15 +45,14 @@ func GenerateImageHandler(c *fiber.Ctx) error {
 
 	if err != nil {
 		log.Printf("OpenAI API error: %v", err)
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to generate image"})
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to generate image", "success": false})
 	}
 
 	// Access image data from response
 	if len(resp.Data) == 0 {
-		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "No images generated"})
+		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "No images generated", "success": true})
 	}
 
 	image := resp.Data[0].B64JSON
-
-	return c.JSON(fiber.Map{"photo": image})
+	return c.Status(200).JSON(fiber.Map{"photo": image, "success": true})
 }

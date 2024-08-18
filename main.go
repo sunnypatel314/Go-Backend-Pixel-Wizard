@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/joho/godotenv"
 	"github.com/sunnypatel314/Go-Backend-Pixel-Wizard/cloudinary"
 	"github.com/sunnypatel314/Go-Backend-Pixel-Wizard/database"
@@ -14,7 +15,9 @@ import (
 )
 
 func main() {
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		BodyLimit: 50 * 1024 * 1024, // 50 MB limit
+	})
 
 	err := godotenv.Load()
 	if err != nil {
@@ -30,6 +33,12 @@ func main() {
 			log.Fatalf("Error disconnecting from MongoDB: %v", err)
 		}
 	}()
+
+	// Enable CORS
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+		AllowMethods: "GET,POST,PUT,DELETE",
+	}))
 
 	// AUTH ROUTES
 	app.Post("/api/v1/auth/log-in", handlers.LogInHandler)
