@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 
@@ -22,6 +23,7 @@ func main() {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatalf("Error loading .env file")
+		fmt.Println(err)
 	}
 
 	// Initialize Cloudinary
@@ -51,9 +53,8 @@ func main() {
 	auth.Delete("/posts/:id", handlers.DeletePostHandler)
 	auth.Post("/dalle", handlers.GenerateImageHandler)
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.Status(200).JSON(fiber.Map{"msg": "Hello, World!"})
-	})
-
+	wd, _ := os.Getwd()
+	log.Println("Current working directory:", wd)
 	app.Listen(":" + os.Getenv("PORT"))
+
 }
