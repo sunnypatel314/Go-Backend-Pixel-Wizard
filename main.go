@@ -20,10 +20,13 @@ func main() {
 		BodyLimit: 50 * 1024 * 1024, // 50 MB limit
 	})
 
+	wd, _ := os.Getwd()
+	log.Println("Current working directory:", wd)
+
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatalf("Error loading .env file")
 		fmt.Println(err)
+		log.Fatalf("Error loading .env file")
 	}
 
 	// Initialize Cloudinary
@@ -53,8 +56,6 @@ func main() {
 	auth.Delete("/posts/:id", handlers.DeletePostHandler)
 	auth.Post("/dalle", handlers.GenerateImageHandler)
 
-	wd, _ := os.Getwd()
-	log.Println("Current working directory:", wd)
 	app.Listen(":" + os.Getenv("PORT"))
 
 }
