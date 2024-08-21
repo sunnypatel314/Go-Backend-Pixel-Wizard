@@ -2,13 +2,11 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/joho/godotenv"
 	"github.com/sunnypatel314/Go-Backend-Pixel-Wizard/cloudinary"
 	"github.com/sunnypatel314/Go-Backend-Pixel-Wizard/database"
 	"github.com/sunnypatel314/Go-Backend-Pixel-Wizard/handlers"
@@ -23,11 +21,11 @@ func main() {
 	wd, _ := os.Getwd()
 	log.Println("Current working directory:", wd)
 
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println(err)
-		log.Fatalf("Error loading .env file")
-	}
+	// err := godotenv.Load()
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	log.Fatalf("Error loading .env file")
+	// }
 
 	// Initialize Cloudinary
 	cloudinary.Init()
