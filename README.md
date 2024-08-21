@@ -2,9 +2,7 @@
 
 A backend API for handling user authentication, AI image generation, and post management, built with Golang, Fiber, MongoDB, and integrated with Cloudinary for image storage and the OpenAI API for AI image generation.
 
-Github repository for the React frontend: 
-    ```bash
-    https://github.com/sunnypatel314/React-Frontend-Pixel-Wizard
+Side note: here is the Github repository for the [React frontend](https://github.com/sunnypatel314/React-Frontend-Pixel-Wizard)
 
 
 ## Features
@@ -43,10 +41,12 @@ Before running the application, ensure you have the following installed:
    PORT=8080
    MONGO_URI=your_mongo_connection_string
    MONGO_DB_NAME=your_mongo_db_name
+   JWT_SECRET=your_jwt_secret_key
    CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
    CLOUDINARY_API_KEY=your_cloudinary_api_key
    CLOUDINARY_API_SECRET=your_cloudinary_api_secret
    OPENAI_API_KEY=your_openai_api_key
+   GO_ENV="production" 
 3. **Install dependencies:**
 
    Ensure all dependencies are installed by running the following command:

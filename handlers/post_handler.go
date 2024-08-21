@@ -12,6 +12,7 @@ import (
 	"github.com/sunnypatel314/Go-Backend-Pixel-Wizard/repository"
 )
 
+// get posts endpoint
 func GetAllPostsHandler(c *fiber.Ctx) error {
 	// Initialize the post repository
 	postRepo := repository.NewPostRepository(database.DB)
@@ -27,6 +28,7 @@ func GetAllPostsHandler(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"data": posts, "success": true})
 }
 
+// create posts endpoint
 func CreatePostHandler(c *fiber.Ctx) error {
 	type CreatePostRequest struct {
 		Username string `json:"username"`
@@ -77,6 +79,7 @@ func CreatePostHandler(c *fiber.Ctx) error {
 	return c.Status(201).JSON(fiber.Map{"message": "Post created successfully", "success": true})
 }
 
+// delete post endpoint
 func DeletePostHandler(c *fiber.Ctx) error {
 	postID := c.Params("id")
 	if postID == "" {

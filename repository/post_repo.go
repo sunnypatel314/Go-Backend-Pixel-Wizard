@@ -12,10 +12,12 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+// Post repo struct for database communication
 type PostRepository struct {
 	collection *mongo.Collection
 }
 
+// Function to set the struct with a collection; returns pointer to that struct.
 func NewPostRepository(client *mongo.Client) *PostRepository {
 	dbName := os.Getenv("MONGO_DB_NAME")
 	return &PostRepository{
@@ -23,6 +25,7 @@ func NewPostRepository(client *mongo.Client) *PostRepository {
 	}
 }
 
+// Function to use collection in struct instance to retrieve all posts
 func (r *PostRepository) GetAllPosts(ctx context.Context) ([]*models.Post, error) {
 	var posts []*models.Post
 	cursor, err := r.collection.Find(ctx, bson.M{})
@@ -45,10 +48,12 @@ func (r *PostRepository) GetAllPosts(ctx context.Context) ([]*models.Post, error
 	return posts, nil
 }
 
+// Function to use collection in struct instance to create a post
 func (r *PostRepository) CreatePost(ctx context.Context, post *models.Post) (*mongo.InsertOneResult, error) {
 	return r.collection.InsertOne(ctx, post, &options.InsertOneOptions{})
 }
 
+// Function to use collection in struct instance to delete post by id
 func (r *PostRepository) DeletePost(ctx context.Context, postID string) error {
 	objectID, err := primitive.ObjectIDFromHex(postID)
 	if err != nil {

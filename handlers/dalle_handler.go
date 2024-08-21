@@ -9,17 +9,7 @@ import (
 	"github.com/sashabaranov/go-openai"
 )
 
-// var client *openai.Client
-
-// func init() {
-// 	apiKey := os.Getenv("OPENAI_API_KEY")
-// 	if apiKey == "" {
-// 		log.Fatal("OPENAI_API_KEY environment variable is not set")
-// 	}
-// 	client = openai.NewClient(apiKey)
-// }
-
-// GenerateImageHandler generates an image using OpenAI's DALL-E
+// dalle endpoint for image generation
 func GenerateImageHandler(c *fiber.Ctx) error {
 	var req struct {
 		Prompt string `json:"prompt"`
@@ -53,6 +43,7 @@ func GenerateImageHandler(c *fiber.Ctx) error {
 		return c.Status(http.StatusInternalServerError).JSON(fiber.Map{"error": "No images generated", "success": true})
 	}
 
+	// returns the image as a B64JSON not a link.
 	image := resp.Data[0].B64JSON
 	return c.Status(200).JSON(fiber.Map{"photo": image, "success": true})
 }

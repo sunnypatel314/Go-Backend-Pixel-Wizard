@@ -16,6 +16,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// log-in endpoint handler
 func LogInHandler(c *fiber.Ctx) error {
 	type LogInRequest struct {
 		Identifier string `json:"identifier"` // Can be email or username
@@ -64,6 +65,7 @@ func LogInHandler(c *fiber.Ctx) error {
 	return c.Status(200).JSON(fiber.Map{"token": tokenString, "success": true})
 }
 
+// sign-up endpoint handler
 func SignUpHandler(c *fiber.Ctx) error {
 	type SignUpRequest struct {
 		Username string `json:"username"`
@@ -79,6 +81,7 @@ func SignUpHandler(c *fiber.Ctx) error {
 	// Initialize the user repository
 	userRepo := repository.NewUserRepository(database.DB)
 
+	// makes sure there arent already users with that name or email
 	_, err := userRepo.FindUserByEmailOrUsername(context.Background(), req.Email)
 	if err == nil {
 		return c.Status(400).JSON(fiber.Map{"error": "Email is already taken", "success": false})
@@ -89,6 +92,7 @@ func SignUpHandler(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "Username already exists", "success": false})
 	}
 
+	// hashes password using bcrypt
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
 		log.Printf("Error hashing password: %v", err)
